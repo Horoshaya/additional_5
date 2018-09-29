@@ -1,41 +1,42 @@
 module.exports = function check(str, bracketsConfig) {
-			var count = 0;
-			str = str.split('');
-			pair1 = ['(', ')'];
-			pair2 = ['[', ']'];
-			pair3 = ['{', '}'];
-			pair4 = ['|', '|'];
+    let bracketsCol = 0;
+    str = str.split('');
 
-			var col = 0;
+    let pair = [];
+    for (let i = 0; str.length-1 >= i; i++) {
+        pair[0] = str[i];
+        let openBrackets = 0;
+        for (let j = i+1; str.length-1 >= j; j++) {
+            pair[1] = str[j];
+            for (let configIndex = 0, length = bracketsConfig.length; length-1 >= configIndex; configIndex++) {
+                if (JSON.stringify(bracketsConfig[configIndex]) == JSON.stringify(pair)) {
+                    if (openBrackets != 0) {
+                        openBrackets--;
+                        break;
+                    }
 
+                    delete str[i];
+                    delete str[j];
+                    bracketsCol++;
 
-			for (var i = 0; str.length-1 >= i; i++) {
-				var pair = [];
+                    let bracketsBetweenDeleted = j - i - 1;
+                	if (bracketsBetweenDeleted % 2 != 0) {
+                   	    return false;
+                	} else { 
+                        j = str.length - 1;
+                        break;
+                	}
+                } else if (pair[0] == pair[1] && configIndex == length-1) {
+                    openBrackets++;
+                    break;
+                }
+            }  
+        }
+    }
 
-				pair[0] = str[i];
-
-				for (var j = i+1; str.length-1 >= j; j++) {
-					pair[1] = str[j];
-
-					if (JSON.stringify(pair)==JSON.stringify(pair1) || JSON.stringify(pair)==JSON.stringify(pair2) || JSON.stringify(pair)==JSON.stringify(pair3) || JSON.stringify(pair)==JSON.stringify(pair4)) {
-
-						delete str[i];
-						delete str[j];
-
-						col = j - i - 1;
-						count++;
-
-						if (col % 2 != 0) {
-							return false;
-						} else break;
-					}
-				}	
-			}
-
-			if (str.length/count == 2 ) {
-				return true;
-			} else {
-				return false;
-			}
-}	
-
+    if (str.length/bracketsCol == 2 ) {
+        return true;
+    } else {
+        return false;
+    }
+}
